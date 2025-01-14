@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.uppy-Dashboard-inner {
+  width: auto !important;
+  height: 25rem !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

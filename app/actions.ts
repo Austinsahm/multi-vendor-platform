@@ -156,6 +156,43 @@ export const signOutAction = async () => {
   return redirect("/sign-in");
 };
 
+// export const uploadProductAction = async (formData: FormData) => {
+//   const supabase = await createClient();
+
+//   const {
+//     data: { user },
+//     error: userError,
+//   } = await supabase.auth.getUser();
+
+//   if (userError || !user) {
+//     console.error("User not authenticated.");
+//     return;
+//   }
+//   const vendorId = user.id;
+
+//   const name = formData.get("name") as string;
+//   const description = formData.get("description") as string;
+//   const price = formData.get("price") as number;
+//   const category = formData.get("category") as string;
+//   const stock = formData.get("stock") as number;
+// };
+
+export const useUser = async () => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  // const { data, error } = await supabase.from("profiles").select("*");
+  // if (error) {
+  //   throw new Error(error.message);
+  // }
+
+  console.log(user);
+
+  return user;
+};
+
 export const fetchAllProducts = async () => {
   const supabase = await createClient();
 

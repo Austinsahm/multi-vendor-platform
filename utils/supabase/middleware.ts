@@ -32,14 +32,25 @@ export const updateSession = async (request: NextRequest) => {
       }
     );
 
+    // Fetch the authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
+    const publicRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
+
     if (!user) {
+      // Allow unauthenticated access to public routes
+      if (
+        publicRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
+      ) {
+        return response;
+      }
+      // Redirect unauthenticated users to the sign-in page for protected routes
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
 
+    // Fetch the user profile to get the role
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("role")
@@ -47,12 +58,14 @@ export const updateSession = async (request: NextRequest) => {
       .single();
 
     if (error || !profile) {
-      return NextResponse.redirect(new URL("/error", request.url)); // Redirect to error page if no profile found
+      // Redirect to error page if no profile or error occurs
+      return NextResponse.redirect(new URL("/error", request.url));
     }
 
     const role = profile.role;
     const requestUrl = request.nextUrl.pathname;
 
+    // Role-based redirection logic
     if (role === "customer" && !requestUrl.startsWith("/customer")) {
       return NextResponse.redirect(new URL("/customer", request.url));
     }
@@ -77,5 +90,13 @@ export const updateSession = async (request: NextRequest) => {
 };
 
 export const config = {
-  matcher: ["/customer/*", "/vendor/*", "/admin/*"],
+  matcher: [
+    "/customer/:path*",
+    "/vendor/:path*",
+    "/admin/:path*",
+    "/sign-in",
+    "/sign-up",
+    "/forgot-password",
+    "/error",
+  ],
 };

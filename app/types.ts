@@ -11,3 +11,13 @@ export interface Product {
   image_url?: string;
   is_active?: boolean;
 }
+
+export interface Profiles {
+  id: string;
+  role: string;
+  username: string;
+  fullname: string;
+  avatar_url: string;
+  email: string;
+  updated_at?: string;
+}
