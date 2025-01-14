@@ -157,26 +157,6 @@ export const signOutAction = async () => {
   return redirect("/sign-in");
 };
 
-// export const uploadProductAction = async (formData: FormData) => {
-//   const supabase = await createClient();
-
-//   const {
-//     data: { user },
-//     error: userError,
-//   } = await supabase.auth.getUser();
-
-//   if (userError || !user) {
-//     console.error("User not authenticated.");
-//     return;
-//   }
-//   const vendorId = user.id;
-
-//   const name = formData.get("name") as string;
-//   const description = formData.get("description") as string;
-//   const price = formData.get("price") as number;
-//   const category = formData.get("category") as string;
-//   const stock = formData.get("stock") as number;
-// };
 
 export const useUser = async () => {
   const supabase = await createClient();
@@ -189,7 +169,7 @@ export const useUser = async () => {
   //   throw new Error(error.message);
   // }
 
-  console.log(user);
+  // console.log(user);
 
   return user;
 };
@@ -204,11 +184,58 @@ export const fetchAllProductsAction = async () => {
 
   const products: Product[] = data?.map(product =>{ 
     return {
+      ...product,
     image_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${product.vendor_id}/${product.id}/${product.name}`,
-    ...product
+  
   }})
 
-  console.log(products);
   
   return products || [];
+};
+
+
+export const fetchProductsByVendorIdAction = async () => {
+  const supabase = await createClient();
+
+  try {
+    // Fetch the authenticated user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    
+
+    if (userError) {
+      throw new Error(userError.message);
+    }
+
+    if (!user) {
+      throw new Error("User not authenticated.");
+    }
+
+    // Fetch products for the authenticated user
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("vendor_id", user.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // Map products to include image URLs
+    const products: Product[] =
+      data?.map((product) => ({
+        ...product,
+        image_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${product.vendor_id}/${product.id}/${product.name}`,
+      })) || [];
+      
+
+    return products;
+  } catch (error: unknown) {
+    console.error("Error fetching products:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "An unknown error occurred."
+    );
+  }
 };

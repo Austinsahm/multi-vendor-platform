@@ -21,8 +21,11 @@ import { createClient } from "@/utils/supabase/client";
 import { type User } from "@supabase/supabase-js";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
+import { Textarea } from "./ui/textarea";
+import { useRouter } from "next/navigation";
 
 const Uploader = ({ user }: { user: User | null }) => {
+  const router = useRouter();
   const supabase = createClient();
 
   const [productName, setProductName] = useState("");
@@ -38,8 +41,6 @@ const Uploader = ({ user }: { user: User | null }) => {
         .select("*")
         .eq("id", user?.id)
         .single();
-
-      console.log(data);
 
       if (error && status !== 406) {
         console.log(error);
@@ -101,6 +102,7 @@ const Uploader = ({ user }: { user: User | null }) => {
     setStock(0);
 
     document.getElementById("trigger-close")?.click();
+    router.refresh();
   });
 
   const handleUpload = () => {
@@ -112,7 +114,7 @@ const Uploader = ({ user }: { user: User | null }) => {
       });
 
       uppy.upload().then(async () => {
-        console.log(description, productName, category, price, stock);
+        // console.log(description, productName, category, price, stock);
 
         const { error } = await supabase
           .from("products")
@@ -143,52 +145,93 @@ const Uploader = ({ user }: { user: User | null }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button id="upload-trigger">Here</Button>
+        <Button id="upload-trigger">Add Product</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Product Upload</DialogTitle>
-          <DialogDescription>Select your product photo</DialogDescription>
+          <DialogDescription>
+            Fill in the details and select your product photo.
+          </DialogDescription>
         </DialogHeader>
-        <div>
-          {" "}
-          <Dashboard theme="dark" uppy={uppy} />
+
+        <div className="grid grid-cols-2 gap-4 py-4">
+          <div>
+            {" "}
+            <Dashboard theme="dark" uppy={uppy} />
+          </div>
+          <div>
+            {" "}
+            <div className="flex flex-col">
+              {" "}
+              <label htmlFor="product-name" className="text-xs">
+                Product Name
+              </label>
+              <Input
+                type="text"
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                placeholder="Ex. Flexible Comb"
+                className="my-2"
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="category" className="text-xs">
+                Category
+              </label>
+              <Input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Ex. Hair Care"
+                className="my-2"
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="description" className="text-xs">
+                Description
+              </label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Ex. Flexible Comb is a hair care product that helps to detangle hair"
+                className="my-2"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="">
+                <label htmlFor="price" className="text-xs">
+                  Price (in NGN)
+                </label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={price}
+                  onChange={(e) => setPrice(parseFloat(e.target.value))}
+                  className="my-2"
+                  required
+                />
+              </div>
+              <div className="">
+                <label htmlFor="stock" className="text-xs">
+                  Stock
+                </label>
+                <Input
+                  type="number"
+                  value={stock}
+                  onChange={(e) => setStock(parseInt(e.target.value))}
+                  placeholder="Stock"
+                  className="my-2"
+                  required
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        <Input
-          type="text"
-          value={productName}
-          onChange={(e) => setProductName(e.target.value)}
-          placeholder="Product Name"
-          className="my-2"
-        />
-        <Input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="Category"
-          className="my-2"
-        />
-        <Input
-          type="number"
-          step="0.01"
-          value={price}
-          onChange={(e) => setPrice(parseFloat(e.target.value))}
-          placeholder="Price (in NGN)"
-          className="my-2"
-        />
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Product Description"
-          className="my-2"
-        />
-        <Input
-          type="number"
-          value={stock}
-          onChange={(e) => setStock(parseInt(e.target.value))}
-          placeholder="Stock"
-          className="my-2"
-        />
+
         <Button className="w-full" onClick={handleUpload}>
           Upload
         </Button>

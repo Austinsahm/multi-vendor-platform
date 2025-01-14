@@ -1,34 +1,40 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Uploader from "@/components/uploader";
-import React from "react";
-import UploadProduct from "./upload/page";
-import { useUser } from "../actions";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { fetchProductsByVendorIdAction } from "../actions";
+import { Product } from "../types";
 
 const VendorPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getProducts() {
+      try {
+        const fetchedProducts = await fetchProductsByVendorIdAction();
+        setProducts(fetchedProducts);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    getProducts();
+  }, []);
+
   return (
     <div>
-      <Button asChild>
-        <Link href={`/vendor/account`}>Profile</Link>
-      </Button>
-
-      {/* <Button asChild>
-        <button
-          onClick={() => {
-            document.getElementById("upload-trigger")?.click();
-          }}
-        >
-          Add Products
-        </button>
-      </Button> */}
-
-      <Button asChild>
-        <Link href={`/vendor/upload`}>Add Products</Link>
-      </Button>
-
-      {/* <UploadProduct /> */}
+      <div>
+        {" "}
+        <Button asChild>
+          <Link href={`/vendor/account`}>Profile</Link>
+        </Button>
+        <Button asChild>
+          <Link href={`/vendor/products`}>My Products</Link>
+        </Button>
+      </div>
     </div>
   );
 };

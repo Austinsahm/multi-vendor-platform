@@ -8,8 +8,6 @@ export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-
-
   useEffect(() => {
     async function getProducts() {
       try {
