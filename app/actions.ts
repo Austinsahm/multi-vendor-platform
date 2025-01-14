@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Product } from "./types";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -193,7 +194,7 @@ export const useUser = async () => {
   return user;
 };
 
-export const fetchAllProducts = async () => {
+export const fetchAllProductsAction = async () => {
   const supabase = await createClient();
 
   const { data, error } = await supabase.from("products").select("*");
@@ -201,5 +202,13 @@ export const fetchAllProducts = async () => {
     throw new Error(error.message);
   }
 
-  return data || [];
+  const products: Product[] = data?.map(product =>{ 
+    return {
+    image_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${product.vendor_id}/${product.id}/${product.name}`,
+    ...product
+  }})
+
+  console.log(products);
+  
+  return products || [];
 };

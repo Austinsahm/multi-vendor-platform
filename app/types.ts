@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   name: string;
+  product_name: string
   description: string;
   price: number;
   category: string;
@@ -8,8 +9,8 @@ export interface Product {
   stock: number;
   created_at: string;
   updated_at?: string;
-  image_url?: string;
   is_active?: boolean;
+  image_url: string
 }
 
 export interface Profiles {

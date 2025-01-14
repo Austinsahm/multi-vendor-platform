@@ -10,8 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Uppy from "@uppy/core";
-// For now, if you do not want to install UI components you
-// are not using import from lib directly.
 import Dashboard from "@uppy/react/lib/Dashboard";
 import Tus from "@uppy/tus";
 import { useState } from "react";
@@ -23,12 +21,10 @@ import { createClient } from "@/utils/supabase/client";
 import { type User } from "@supabase/supabase-js";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
-import { error } from "console";
 
 const Uploader = ({ user }: { user: User | null }) => {
   const supabase = createClient();
-  // console.log(user);
-  // Input refs for additional fields
+
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -37,8 +33,6 @@ const Uploader = ({ user }: { user: User | null }) => {
 
   const getProfile = useCallback(async () => {
     try {
-      // setLoading(true);
-
       const { data, error, status } = await supabase
         .from("profiles")
         .select("*")
@@ -110,36 +104,40 @@ const Uploader = ({ user }: { user: User | null }) => {
   });
 
   const handleUpload = () => {
-    const randomUUID = crypto.randomUUID();
+    if (uppy.getFiles().length !== 0) {
+      const randomUUID = crypto.randomUUID();
 
-    uppy.setFileMeta(uppy.getFiles()[0].id, {
-      objectName: user?.id + "/" + randomUUID + "/" + uppy.getFiles()[0].name,
-    });
+      uppy.setFileMeta(uppy.getFiles()[0].id, {
+        objectName: user?.id + "/" + randomUUID + "/" + uppy.getFiles()[0].name,
+      });
 
-    uppy.upload().then(async () => {
-      console.log(description, productName, category, price, stock);
+      uppy.upload().then(async () => {
+        console.log(description, productName, category, price, stock);
 
-      const { error } = await supabase
-        .from("products")
-        .update({
-          description: description,
-          product_name: productName,
-          category: category,
-          price: price,
-          stock: stock,
-        })
-        .eq("id", randomUUID);
+        const { error } = await supabase
+          .from("products")
+          .update({
+            description: description,
+            product_name: productName,
+            category: category,
+            price: price,
+            stock: stock,
+          })
+          .eq("id", randomUUID);
 
-      if (error) {
-        toast.error("Fail to update Details.");
-      }
+        if (error) {
+          toast.error("Fail to update Details.");
+        }
 
-      if (error) {
-        throw new Error(error.message);
-      }
+        if (error) {
+          throw new Error(error.message);
+        }
 
-      toast.success("Product uploaded successfully!");
-    });
+        toast.success("Product uploaded successfully!");
+      });
+    } else {
+      toast.warning("Please add in an image");
+    }
   };
 
   return (

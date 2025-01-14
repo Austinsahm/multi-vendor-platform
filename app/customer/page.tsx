@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { Product } from "@/app/types";
-import { fetchAllProducts } from "@/app/actions";
+import { fetchAllProductsAction } from "@/app/actions";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+
+
   useEffect(() => {
     async function getProducts() {
       try {
-        const fetchedProducts = await fetchAllProducts();
+        const fetchedProducts = await fetchAllProductsAction();
         setProducts(fetchedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -29,7 +31,7 @@ export default function ProductList() {
     <div className="grid grid-cols-3 gap-4">
       {products.map((product) => (
         <div key={product.id} className="p-4 border rounded">
-          <h3>{product.name}</h3>
+          <h3>{product.product_name}</h3>
           <p>{product.description}</p>
           <p>Price: ${product.price}</p>
           <img
